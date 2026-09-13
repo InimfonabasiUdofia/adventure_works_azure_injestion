@@ -1,0 +1,15 @@
+{
+	"name": "adventureworksinimfon",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Disabled",
+			"editable": true
+		}
+	},
+	"location": "germanywestcentral",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "e77665d6-1938-4118-a1dd-1af1f57e50ed",
+		"tenantId": "44fe244e-5d8d-414a-b7b0-62c16f384a21"
+	}
+}
