@@ -5,9 +5,20 @@
 			{
 				"name": "ForEach1",
 				"type": "ForEach",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "files",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"userProperties": [],
 				"typeProperties": {
+					"items": {
+						"value": "@activity('files').output.value",
+						"type": "Expression"
+					},
 					"activities": [
 						{
 							"name": "cdc",
@@ -34,7 +45,7 @@
 									}
 								},
 								"dataset": {
-									"referenceName": "Json1",
+									"referenceName": "cdc",
 									"type": "DatasetReference"
 								},
 								"firstRowOnly": false
@@ -63,7 +74,7 @@
 								"source": {
 									"type": "PostgreSqlV2Source",
 									"query": {
-										"value": "select * from @{pipeline().parameters.schema} where ",
+										"value": "select * from @{item().schema}.@{item().table_name} ",
 										"type": "Expression"
 									},
 									"queryTimeout": "02:00:00"
@@ -73,11 +84,48 @@
 							"inputs": [
 								{
 									"referenceName": "PostgreSqlTable1",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"table": {
+											"value": "@item().table_name",
+											"type": "Expression"
+										}
+									}
 								}
 							]
 						}
 					]
+				}
+			},
+			{
+				"name": "files",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "db_details",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
 				}
 			}
 		],
@@ -85,7 +133,10 @@
 			"schema": {
 				"type": "string"
 			},
-			"table": {
+			"table_name": {
+				"type": "string"
+			},
+			"destination": {
 				"type": "string"
 			}
 		},

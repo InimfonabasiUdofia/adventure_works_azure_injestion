@@ -1,5 +1,5 @@
 {
-	"name": "cdc",
+	"name": "db_details",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureDataLakeStorage1",
@@ -10,8 +10,8 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "cdc.json",
-				"folderPath": "cdc",
+				"fileName": "adventureworks_tables.json",
+				"folderPath": "lookup",
 				"fileSystem": "raw"
 			}
 		},
