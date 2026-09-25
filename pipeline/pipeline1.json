@@ -83,8 +83,8 @@
 							"typeProperties": {
 								"ifTrueActivities": [
 									{
-										"name": "Script1",
-										"type": "Script",
+										"name": "max_cdc",
+										"type": "Lookup",
 										"dependsOn": [],
 										"policy": {
 											"timeout": "0.12:00:00",
@@ -95,13 +95,77 @@
 										},
 										"userProperties": [],
 										"typeProperties": {
-											"scripts": [
-												{
-													"type": "Query"
-												}
-											],
-											"scriptBlockExecutionTimeout": "02:00:00"
+											"source": {
+												"type": "PostgreSqlV2Source",
+												"query": {
+													"value": "SELECT MAX(cdc_col) AS max_cdc\nFROM @{item().schema}.@{item().table_name}\n",
+													"type": "Expression"
+												},
+												"queryTimeout": "02:00:00"
+											},
+											"dataset": {
+												"referenceName": "PostgreSqlTable2",
+												"type": "DatasetReference"
+											},
+											"firstRowOnly": false
 										}
+									},
+									{
+										"name": "Copy data1",
+										"type": "Copy",
+										"dependsOn": [
+											{
+												"activity": "max_cdc",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "PostgreSqlV2Source",
+												"additionalColumns": [
+													{
+														"name": "cdc",
+														"value": {
+															"value": "@activity('max_cdc').output.resultSets[0].rows[0].cdc\n",
+															"type": "Expression"
+														}
+													}
+												],
+												"queryTimeout": "02:00:00"
+											},
+											"sink": {
+												"type": "JsonSink",
+												"storeSettings": {
+													"type": "AzureBlobFSWriteSettings"
+												},
+												"formatSettings": {
+													"type": "JsonWriteSettings"
+												}
+											},
+											"enableStaging": false
+										},
+										"inputs": [
+											{
+												"referenceName": "PostgreSqlTable3",
+												"type": "DatasetReference"
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "Json1",
+												"type": "DatasetReference"
+											}
+										]
 									}
 								]
 							}

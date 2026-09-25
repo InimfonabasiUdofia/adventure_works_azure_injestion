@@ -1,5 +1,5 @@
 {
-	"name": "PostgreSqlTable1",
+	"name": "PostgreSqlTable3",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "adventure_works_postgres_db",
