@@ -46,7 +46,10 @@
 								},
 								"dataset": {
 									"referenceName": "cdc",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"folder": "@{items().destination}_cdc"
+									}
 								},
 								"firstRowOnly": false
 							}
@@ -85,10 +88,10 @@
 									"value": "@greater(coalesce(activity('database_injestion').output.dataRead, 0), 0)",
 									"type": "Expression"
 								},
-								"ifTrueActivities": [
+								"ifFalseActivities": [
 									{
-										"name": "max_cdc",
-										"type": "Lookup",
+										"name": "Delete1",
+										"type": "Delete",
 										"dependsOn": [],
 										"policy": {
 											"timeout": "0.12:00:00",
@@ -99,32 +102,34 @@
 										},
 										"userProperties": [],
 										"typeProperties": {
-											"source": {
-												"type": "PostgreSqlV2Source",
-												"query": {
-													"value": "SELECT  MAX(@{item().cdc_col}) AS max_cdc\nFROM @{item().schema}.@{item().table_name}\n",
-													"type": "Expression"
-												},
-												"queryTimeout": "02:00:00"
-											},
 											"dataset": {
-												"referenceName": "PostgreSqlTable2",
-												"type": "DatasetReference"
+												"referenceName": "Parquet1",
+												"type": "DatasetReference",
+												"parameters": {
+													"folder": {
+														"value": "item().destination ",
+														"type": "Expression"
+													},
+													"file": {
+														"value": "@{concat(item().destination ,'-',variables('current'))}",
+														"type": "Expression"
+													}
+												}
 											},
-											"firstRowOnly": false
+											"enableLogging": true,
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
 										}
-									},
+									}
+								],
+								"ifTrueActivities": [
 									{
 										"name": "Copy data1",
 										"type": "Copy",
-										"dependsOn": [
-											{
-												"activity": "max_cdc",
-												"dependencyConditions": [
-													"Succeeded"
-												]
-											}
-										],
+										"dependsOn": [],
 										"policy": {
 											"timeout": "0.12:00:00",
 											"retry": 0,
@@ -162,7 +167,13 @@
 										"outputs": [
 											{
 												"referenceName": "Json1",
-												"type": "DatasetReference"
+												"type": "DatasetReference",
+												"parameters": {
+													"folder": {
+														"value": "@{item().destination}_cdc",
+														"type": "Expression"
+													}
+												}
 											}
 										]
 									}
