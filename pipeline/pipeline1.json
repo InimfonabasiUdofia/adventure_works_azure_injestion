@@ -82,7 +82,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@bool(greater(activity('database_injestion').output.dataRead, 0))",
+									"value": "@greater(coalesce(activity('database_injestion').output.dataRead, 0), 0)",
 									"type": "Expression"
 								},
 								"ifTrueActivities": [
@@ -102,7 +102,7 @@
 											"source": {
 												"type": "PostgreSqlV2Source",
 												"query": {
-													"value": "SELECT MAX(cdc_col) AS max_cdc\nFROM @{item().schema}.@{item().table_name}\n",
+													"value": "SELECT  MAX(@{item().cdc_col}) AS max_cdc\nFROM @{item().schema}.@{item().table_name}\n",
 													"type": "Expression"
 												},
 												"queryTimeout": "02:00:00"
@@ -136,17 +136,8 @@
 										"typeProperties": {
 											"source": {
 												"type": "PostgreSqlV2Source",
-												"additionalColumns": [
-													{
-														"name": "cdc",
-														"value": {
-															"value": "@activity('max_cdc').output.resultSets[0].rows[0].cdc\n",
-															"type": "Expression"
-														}
-													}
-												],
 												"query": {
-													"value": "SELECT MAX(cdc_col) AS max_cdc\nFROM @{item().schema}.@{item().table_name}",
+													"value": "SELECT  MAX(@{item().cdc_col}) AS max_cdc\nFROM @{item().schema}.@{item().table_name}",
 													"type": "Expression"
 												},
 												"queryTimeout": "02:00:00"
@@ -207,7 +198,7 @@
 								"source": {
 									"type": "PostgreSqlV2Source",
 									"query": {
-										"value": "\nSELECT * FROM @{item().schema}.@{item().table_name} WHERE @{item().cdc_col} > '@{activity('cdc').output.value[0].cdc}'",
+										"value": "\nSELECT * FROM @{item().schema}.@{item().table_name} WHERE @{item().cdc_col} > '@{activity('cdc').output.value[0].max_cdc}'",
 										"type": "Expression"
 									},
 									"queryTimeout": "02:00:00"
