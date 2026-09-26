@@ -82,7 +82,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "\r\n@greater(activity('database_injestion').output.dataRead, 0)",
+									"value": "@bool(greater(activity('database_injestion').output.dataRead, 0))",
 									"type": "Expression"
 								},
 								"ifTrueActivities": [
@@ -145,7 +145,10 @@
 														}
 													}
 												],
-												"query": "SELECT MAX(cdc_col) AS max_cdc\nFROM @{item().schema}.@{item().table_name}",
+												"query": {
+													"value": "SELECT MAX(cdc_col) AS max_cdc\nFROM @{item().schema}.@{item().table_name}",
+													"type": "Expression"
+												},
 												"queryTimeout": "02:00:00"
 											},
 											"sink": {
