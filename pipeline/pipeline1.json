@@ -48,7 +48,10 @@
 									"referenceName": "cdc",
 									"type": "DatasetReference",
 									"parameters": {
-										"folder": "@{items().destination}_cdc"
+										"folder": {
+											"value": "@concat(item().table_name, '_cdc')",
+											"type": "Expression"
+										}
 									}
 								},
 								"firstRowOnly": false
@@ -170,7 +173,7 @@
 												"type": "DatasetReference",
 												"parameters": {
 													"folder": {
-														"value": "@{item().destination}_cdc",
+														"value": "@concat(item().table_name, '_cdc')",
 														"type": "Expression"
 													}
 												}
@@ -209,7 +212,7 @@
 								"source": {
 									"type": "PostgreSqlV2Source",
 									"query": {
-										"value": "\nSELECT * FROM @{item().schema}.@{item().table_name} WHERE @{item().cdc_col} > '@{activity('cdc').output.value[0].max_cdc}'",
+										"value": "\nSELECT * FROM @{item().schema}.@{item().table_name} WHERE @{item().cdc_col} > '@{activity('cdc').output.value[0].cdc}'",
 										"type": "Expression"
 									},
 									"queryTimeout": "02:00:00"
@@ -291,17 +294,6 @@
 				}
 			}
 		],
-		"parameters": {
-			"schema": {
-				"type": "string"
-			},
-			"table_name": {
-				"type": "string"
-			},
-			"destination": {
-				"type": "string"
-			}
-		},
 		"variables": {
 			"current": {
 				"type": "String"
