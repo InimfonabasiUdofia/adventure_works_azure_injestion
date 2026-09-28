@@ -106,11 +106,11 @@
 										"userProperties": [],
 										"typeProperties": {
 											"dataset": {
-												"referenceName": "Parquet1",
+												"referenceName": "Binary1",
 												"type": "DatasetReference",
 												"parameters": {
 													"folder": {
-														"value": "\n@{item().destination}",
+														"value": "@item().destination",
 														"type": "Expression"
 													},
 													"file": {
